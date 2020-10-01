@@ -259,7 +259,7 @@ func getPortForComponent(componentName string) (int, error) {
 func getProtocolForComponent(componentName string) string {
 	switch componentName {
 	case "etcd":
-		return "https://"
+		return "http://"
 	case "kube-apiserver":
 		return "https://"
 	default:
