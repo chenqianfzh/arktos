@@ -69,6 +69,36 @@ chaosMonkey:
 steps:
 - name: Starting measurements
   measurements:
+  - Identifier: APIResponsivenessPrometheus
+    Method: APIResponsivenessPrometheus
+    Params:
+      action: start
+  - Identifier: APIResponsivenessPrometheusSimple
+    Method: APIResponsivenessPrometheus
+    Params:
+      action: start
+  - Identifier: PodStartupLatency
+    Method: PodStartupLatency
+    Params:
+      action: start
+      labelSelector: group = load
+      threshold: 1h
+  - Identifier: InClusterNetworkLatency
+    Method: InClusterNetworkLatency
+    Params:
+      action: start
+      replicasPerProbe: {{AddInt 2 (DivideInt .Nodes 100)}}
+  - Identifier: DnsLookupLatency
+    Method: DnsLookupLatency
+    Params:
+      action: start
+      replicasPerProbe: {{AddInt 2 (DivideInt .Nodes 100)}}
+  {{if $PROMETHEUS_SCRAPE_KUBE_PROXY}}
+  - Identifier: NetworkProgrammingLatency
+    Method: NetworkProgrammingLatency
+    Params:
+      action: start
+  {{end}}
   - Identifier: TestMetrics
     Method: TestMetrics
     Params:
@@ -78,8 +108,40 @@ steps:
       restartCountThresholdOverrides: {{YamlQuote $RESTART_COUNT_THRESHOLD_OVERRIDES 4}}
       enableRestartCountCheck: {{$ENABLE_RESTART_COUNT_CHECK}}
 
+
 - name: Collecting measurements
   measurements:
+  - Identifier: APIResponsivenessPrometheusSimple
+    Method: APIResponsivenessPrometheus
+    Params:
+      action: gather
+      enableViolations: true
+      useSimpleLatencyQuery: true
+      summaryName: APIResponsivenessPrometheus_simple
+  {{if not $USE_SIMPLE_LATENCY_QUERY}}
+  - Identifier: APIResponsivenessPrometheus
+    Method: APIResponsivenessPrometheus
+    Params:
+      action: gather
+  {{end}}
+  - Identifier: PodStartupLatency
+    Method: PodStartupLatency
+    Params:
+      action: gather
+  - Identifier: InClusterNetworkLatency
+    Method: InClusterNetworkLatency
+    Params:
+      action: gather
+  - Identifier: DnsLookupLatency
+    Method: DnsLookupLatency
+    Params:
+      action: gather
+  {{if $PROMETHEUS_SCRAPE_KUBE_PROXY}}
+  - Identifier: NetworkProgrammingLatency
+    Method: NetworkProgrammingLatency
+    Params:
+      action: gather
+  {{end}}
   - Identifier: TestMetrics
     Method: TestMetrics
     Params:
