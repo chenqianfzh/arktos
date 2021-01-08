@@ -21,6 +21,7 @@ import (
 	"context"
 	uid "github.com/google/uuid"
 	"k8s.io/apimachinery/pkg/apis/meta/fuzzer"
+	"runtime/debug"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/uuid"
@@ -40,7 +41,8 @@ func FillObjectMetaSystemFields(meta metav1.Object) {
 		if err != nil {
 			uid := uuid.NewUUID()
 			meta.SetUID(uid)
-			klog.Infof("Got invalid uuid [%s]. Assign a new one [%v]", uidStr, uid)
+			klog.Infof("Got invalid uuid [%s]. Assign a new one [%v]. err : %v, meta %v", uidStr, uid, err, meta)
+			debug.PrintStack()
 		}
 	}
 	uid := meta.GetUID()
