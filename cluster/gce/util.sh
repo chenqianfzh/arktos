@@ -2838,7 +2838,7 @@ function load-proxy-cfg {
 
 function build_haproxy_cfg_generator() {
   export GO111MODULE=on
-  go build -o /tmp/haproxy_cfg_generator "${KUBE_ROOT}/hack/scale_out_poc/config_haproxy/cfg_generator/"
+  go build -o /tmp/haproxy_cfg_generator "${KUBE_ROOT}/cmd/haproxy-cfg-generator/"
 }
 
 function setup-proxy() {
