@@ -250,7 +250,7 @@ func (w *watchCache) processEvent(event watch.Event, resourceVersion uint64, upd
 		return err
 	}
 
-	wcEvent := &watchCacheEvent{
+	watchCacheEvent := &watchCacheEvent{
 		Type:            event.Type,
 		Object:          elem.Object,
 		ObjLabels:       elem.Labels,
@@ -273,12 +273,12 @@ func (w *watchCache) processEvent(event watch.Event, resourceVersion uint64, upd
 		}
 		if exists {
 			previousElem := previous.(*storeElement)
-			wcEvent.PrevObject = previousElem.Object
-			wcEvent.PrevObjLabels = previousElem.Labels
-			wcEvent.PrevObjFields = previousElem.Fields
+			watchCacheEvent.PrevObject = previousElem.Object
+			watchCacheEvent.PrevObjLabels = previousElem.Labels
+			watchCacheEvent.PrevObjFields = previousElem.Fields
 		}
 
-		w.updateCache(wcEvent)
+		w.updateCache(watchCacheEvent)
 		w.resourceVersion = resourceVersion
 		defer w.cond.Broadcast()
 
@@ -291,7 +291,7 @@ func (w *watchCache) processEvent(event watch.Event, resourceVersion uint64, upd
 	// This is safe as long as there is at most one call to processEvent in flight
 	// at any point in time.
 	if w.eventHandler != nil {
-		w.eventHandler(wcEvent)
+		w.eventHandler(watchCacheEvent)
 	}
 	return nil
 }
@@ -353,10 +353,7 @@ func (w *watchCache) WaitUntilFreshAndList(resourceVersion uint64, matchValues [
 		return nil, 0, err
 	}
 
-	// This isn't the place where we do "final filtering" - only some "prefiltering" is happening here. So the only
-	// requirement here is to NOT miss anything that should be returned. We can return as many non-matching items as we
-	// want - they will be filtered out later. The fact that we return less things is only further performance improvement.
-	// TODO: if multiple indexes match, return the one with the fewest items, so as to do as much filtering as possible.
+	// TODO: use the smallest key size index.
 	for _, matchValue := range matchValues {
 		if result, err := w.store.ByIndex(matchValue.IndexName, matchValue.Value); err == nil {
 			return result, w.resourceVersion, nil

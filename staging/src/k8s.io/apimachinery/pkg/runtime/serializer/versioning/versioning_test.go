@@ -1,6 +1,5 @@
 /*
 Copyright 2015 The Kubernetes Authors.
-Copyright 2020 Authors of Arktos - file modified.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,7 +25,6 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	runtimetesting "k8s.io/apimachinery/pkg/runtime/testing"
 	"k8s.io/apimachinery/pkg/util/diff"
 )
 
@@ -378,10 +376,6 @@ func (s *mockSerializer) Encode(obj runtime.Object, w io.Writer) error {
 	return s.err
 }
 
-func (s *mockSerializer) Identifier() runtime.Identifier {
-	return runtime.Identifier("mock")
-}
-
 type mockCreater struct {
 	err error
 	obj runtime.Object
@@ -429,18 +423,4 @@ func TestDirectCodecEncode(t *testing.T) {
 	if e, a := "expected_group", serializer.encodingObjGVK.Group; e != a {
 		t.Errorf("expected group to be %v, got %v", e, a)
 	}
-}
-
-func TestCacheableObject(t *testing.T) {
-	gvk1 := schema.GroupVersionKind{Group: "group", Version: "version1", Kind: "MockCacheableObject"}
-	gvk2 := schema.GroupVersionKind{Group: "group", Version: "version2", Kind: "MockCacheableObject"}
-
-	encoder := NewCodec(
-		&mockSerializer{}, &mockSerializer{},
-		&mockConvertor{}, nil,
-		&mockTyper{gvks: []schema.GroupVersionKind{gvk1, gvk2}}, nil,
-		gvk1.GroupVersion(), gvk2.GroupVersion(),
-		"TestCacheableObject")
-
-	runtimetesting.CacheableObjectTest(t, encoder)
 }

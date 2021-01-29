@@ -1,6 +1,5 @@
 /*
 Copyright 2017 The Kubernetes Authors.
-Copyright 2020 Authors of Arktos - file modified.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,8 +20,6 @@ import (
 	"io/ioutil"
 	"sync"
 	"testing"
-
-	runtimetesting "k8s.io/apimachinery/pkg/runtime/testing"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -149,8 +146,4 @@ func TestNestedFieldCopy(t *testing.T) {
 	assert.False(t, exists)
 	assert.Nil(t, err)
 	assert.Nil(t, res)
-}
-
-func TestCacheableObject(t *testing.T) {
-	runtimetesting.CacheableObjectTest(t, UnstructuredJSONScheme)
 }

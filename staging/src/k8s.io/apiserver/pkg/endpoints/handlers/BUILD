@@ -11,7 +11,6 @@ go_test(
     srcs = [
         "create_test.go",
         "namer_test.go",
-        "response_test.go",
         "rest_test.go",
     ],
     embed = [":go_default_library"],
@@ -22,7 +21,6 @@ go_test(
         "//staging/src/k8s.io/apimachinery/pkg/api/meta:go_default_library",
         "//staging/src/k8s.io/apimachinery/pkg/apis/meta/v1:go_default_library",
         "//staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/unstructured:go_default_library",
-        "//staging/src/k8s.io/apimachinery/pkg/apis/meta/v1beta1:go_default_library",
         "//staging/src/k8s.io/apimachinery/pkg/apis/testapigroup/v1:go_default_library",
         "//staging/src/k8s.io/apimachinery/pkg/runtime:go_default_library",
         "//staging/src/k8s.io/apimachinery/pkg/runtime/schema:go_default_library",
@@ -35,7 +33,6 @@ go_test(
         "//staging/src/k8s.io/apiserver/pkg/admission:go_default_library",
         "//staging/src/k8s.io/apiserver/pkg/apis/example:go_default_library",
         "//staging/src/k8s.io/apiserver/pkg/apis/example/v1:go_default_library",
-        "//staging/src/k8s.io/apiserver/pkg/endpoints/handlers/negotiation:go_default_library",
         "//staging/src/k8s.io/apiserver/pkg/endpoints/request:go_default_library",
         "//staging/src/k8s.io/apiserver/pkg/registry/rest:go_default_library",
         "//staging/src/k8s.io/client-go/kubernetes/scheme:go_default_library",

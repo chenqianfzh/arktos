@@ -122,8 +122,7 @@ func Matcher(label labels.Selector, field fields.Selector) pkgstorage.SelectionP
 	}
 }
 
-// NameTriggerFunc returns value metadata.namespace of given object.
-func NameTriggerFunc(obj runtime.Object) string {
+func SecretNameTriggerFunc(obj runtime.Object) string {
 	return obj.(*api.Secret).ObjectMeta.Name
 }
 

@@ -344,11 +344,7 @@ func verifyWatchEvent(t *testing.T, w watch.Interface, eventType watch.EventType
 			t.Logf("(called from line %d)", line)
 			t.Errorf("Expected: %s, got: %s", eventType, event.Type)
 		}
-		object := event.Object
-		if co, ok := object.(runtime.CacheableObject); ok {
-			object = co.GetObject()
-		}
-		if e, a := eventObject, object; !apiequality.Semantic.DeepDerivative(e, a) {
+		if e, a := eventObject, event.Object; !apiequality.Semantic.DeepDerivative(e, a) {
 			t.Logf("(called from line %d)", line)
 			t.Errorf("Expected (%s): %#v, got: %#v", eventType, e, a)
 		}
@@ -584,11 +580,7 @@ func TestStartingResourceVersion(t *testing.T) {
 
 	select {
 	case e := <-watcher.ResultChan():
-		object := e.Object
-		if co, ok := object.(runtime.CacheableObject); ok {
-			object = co.GetObject()
-		}
-		pod := object.(*example.Pod)
+		pod := e.Object.(*example.Pod)
 		podRV, err := v.ParseResourceVersion(pod.ResourceVersion)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -701,11 +693,7 @@ func TestRandomWatchDeliver(t *testing.T) {
 		if !ok {
 			break
 		}
-		object := event.Object
-		if co, ok := object.(runtime.CacheableObject); ok {
-			object = co.GetObject()
-		}
-		if a, e := object.(*example.Pod).Name, fmt.Sprintf("foo-%d", watched); e != a {
+		if a, e := event.Object.(*example.Pod).Name, fmt.Sprintf("foo-%d", watched); e != a {
 			t.Errorf("Unexpected object watched: %s, expected %s", a, e)
 		}
 		watched++
@@ -885,7 +873,7 @@ func TestWatchBookmarksWithCorrectResourceVersion(t *testing.T) {
 				pod := fmt.Sprintf("foo-%d", i)
 				err := createPod(etcdStorage, makeTestPod(pod))
 				if err != nil {
-					t.Fatalf("failed to create pod %v: %v", pod, err)
+					t.Fatalf("failed to create pod %v", pod)
 				}
 				time.Sleep(time.Second / 100)
 			}
