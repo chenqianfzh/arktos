@@ -12,8 +12,6 @@ function get_ip_addr {
     printf " ${instance_name} : ${IP_ADDR}\n"
 }
 
-get_ip_addr ${RUN_PREFIX}-kubemark-rp-master
-
 for (( tp_num=1; tp_num<=${SCALEOUT_TP_COUNT}; tp_num++ ))
 do
   get_ip_addr ${RUN_PREFIX}-kubemark-tp-${tp_num}-master
@@ -25,7 +23,7 @@ get_ip_addr ${RUN_PREFIX}-master
 
 get_ip_addr ${RUN_PREFIX}-kubemark-proxy
 
-for minion in $(gcloud compute instance-groups list-instances ${RUN_PREFIX}-minion-group --zone "${GCE_REGION}" --project "${GCE_PROJECT}" | awk '{print $1}')
+for minion in $(gcloud compute instance-groups list-instances ${RUN_PREFIX}-minion-group --zone "${GCE_REGION}" --project "${GCE_PROJECT}" | awk 'NR>1 {print $1}')
 do 
   echo "------------ $minion"
   get_ip_addr $minion
