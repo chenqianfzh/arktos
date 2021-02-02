@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "To see live Prometheus: "
+echo "The list of machines and IPs: "
 export GCE_PROJECT=${GCE_PROJECT:-"workload-controller-manager"}
 export GCE_REGION=${GCE_REGION:-"us-central1-b"}
 export RUN_PREFIX=${RUN_PREFIX:-"qian-verify"}
@@ -25,6 +25,5 @@ get_ip_addr ${RUN_PREFIX}-kubemark-proxy
 
 for minion in $(gcloud compute instance-groups list-instances ${RUN_PREFIX}-minion-group --zone "${GCE_REGION}" --project "${GCE_PROJECT}" | awk 'NR>1 {print $1}')
 do 
-  echo "------------ $minion"
   get_ip_addr $minion
 done
