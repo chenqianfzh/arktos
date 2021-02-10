@@ -2385,6 +2385,8 @@ function start-kube-controller-manager {
     params+=" $KUBE_CONTROLLER_EXTRA_ARGS"
   fi
 
+  params+=" --enable-hostpath-provisioner=${ENABLE_HOSTPATH_PROVISIONER}"
+
   local -r kube_rc_docker_tag=$(cat /home/kubernetes/kube-docker-files/kube-controller-manager.docker_tag)
   local container_env=""
   if [[ -n "${ENABLE_CACHE_MUTATION_DETECTOR:-}" ]]; then
