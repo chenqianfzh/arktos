@@ -2385,7 +2385,7 @@ function start-kube-controller-manager {
     params+=" $KUBE_CONTROLLER_EXTRA_ARGS"
   fi
 
-  params+=" --enable-hostpath-provisioner=${ENABLE_HOSTPATH_PROVISIONER}"
+  params+=" --enable-hostpath-provisioner=${ENABLE_HOSTPATH_PROVISIONER:-false}"
 
   local -r kube_rc_docker_tag=$(cat /home/kubernetes/kube-docker-files/kube-controller-manager.docker_tag)
   local container_env=""

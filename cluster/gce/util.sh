@@ -1621,7 +1621,12 @@ EOF
       cat >>$file <<EOF
 TENANT_SERVERS: $(yaml-quote ${TENANT_SERVERS})
 EOF
-    fi
+  fi
+  if [ -n "${ENABLE_HOSTPATH_PROVISIONER:-}" ]; then
+      cat >>$file <<EOF
+ENABLE_HOSTPATH_PROVISIONER: $(yaml-quote ${ENABLE_HOSTPATH_PROVISIONER})
+EOF
+  fi
 }
 
 
