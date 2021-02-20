@@ -77,7 +77,9 @@ func (r *RBACAuthorizer) Authorize(requestAttributes authorizer.Attributes) (aut
 	ruleCheckingVisitor := &authorizingVisitor{requestAttributes: requestAttributes}
 
 	userTenant := requestAttributes.GetUser().GetTenant()
+	klog.Infof("Qian Track 1: User (%v) Tenant (%v)", requestAttributes.GetUser().GetName(), requestAttributes.GetUser().GetTenant())
 	if userTenant != metav1.TenantSystem && userTenant != requestAttributes.GetTenant() {
+		klog.Infof("Qian Track 2: User (%v) Tenant (%v)", requestAttributes.GetUser().GetName(), requestAttributes.GetUser().GetTenant())
 		klog.Infof("user tenant '%v' does not match the requested tenant space '%v'",
 			userTenant, requestAttributes.GetTenant())
 		return authorizer.DecisionDeny, ruleCheckingVisitor.reason, nil
