@@ -1,0 +1,29 @@
+apiVersion: arktosedge.futurewei.com/v1alpha1
+kind: Workload
+metadata:
+  name: example-deployment
+spec:
+  content:
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: sample-nginx-deployment
+      namespace: sample-namespace-a
+      tenant: sample-tenant-1
+      labels:
+        app: nginx
+    spec:
+      replicas: 3
+      selector:
+        matchLabels:
+          app: nginx
+      template:
+        metadata:
+          labels:
+            app: nginx
+        spec:
+          containers:
+          - name: nginx
+            image: nginx:1.7.9
+            ports:
+            - containerPort: 80
