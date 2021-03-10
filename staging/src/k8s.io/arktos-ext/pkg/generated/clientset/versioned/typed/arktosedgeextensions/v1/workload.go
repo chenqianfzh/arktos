@@ -28,55 +28,54 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	diff "k8s.io/apimachinery/pkg/util/diff"
 	watch "k8s.io/apimachinery/pkg/watch"
-	v1 "k8s.io/arktos-ext/pkg/apis/arktosextensions/v1"
+	v1 "k8s.io/arktos-ext/pkg/apis/arktosedgeextensions/v1"
 	scheme "k8s.io/arktos-ext/pkg/generated/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 	klog "k8s.io/klog"
 )
 
-// NetworksGetter has a method to return a NetworkInterface.
+// WorkloadsGetter has a method to return a WorkloadInterface.
 // A group's client should implement this interface.
-type NetworksGetter interface {
-	Networks() NetworkInterface
-	NetworksWithMultiTenancy(tenant string) NetworkInterface
+type WorkloadsGetter interface {
+	Workloads() WorkloadInterface
+	WorkloadsWithMultiTenancy(tenant string) WorkloadInterface
 }
 
-// NetworkInterface has methods to work with Network resources.
-type NetworkInterface interface {
-	Create(*v1.Network) (*v1.Network, error)
-	UpdateStatus(*v1.Network) (*v1.Network, error)
-	Get(name string, options metav1.GetOptions) (*v1.Network, error)
-	List(opts metav1.ListOptions) (*v1.NetworkList, error)
+// WorkloadInterface has methods to work with Workload resources.
+type WorkloadInterface interface {
+	Create(*v1.Workload) (*v1.Workload, error)
+	Get(name string, options metav1.GetOptions) (*v1.Workload, error)
+	List(opts metav1.ListOptions) (*v1.WorkloadList, error)
 	Watch(opts metav1.ListOptions) (watch.Interface, error)
-	NetworkExpansion
+	WorkloadExpansion
 }
 
-// networks implements NetworkInterface
-type networks struct {
+// workloads implements WorkloadInterface
+type workloads struct {
 	client  rest.Interface
 	clients []rest.Interface
 	te      string
 }
 
-// newNetworks returns a Networks
-func newNetworks(c *ArktosV1Client) *networks {
-	return newNetworksWithMultiTenancy(c, "system")
+// newWorkloads returns a Workloads
+func newWorkloads(c *ArktosedgeV1Client) *workloads {
+	return newWorkloadsWithMultiTenancy(c, "system")
 }
 
-func newNetworksWithMultiTenancy(c *ArktosV1Client, tenant string) *networks {
-	return &networks{
+func newWorkloadsWithMultiTenancy(c *ArktosedgeV1Client, tenant string) *workloads {
+	return &workloads{
 		client:  c.RESTClient(),
 		clients: c.RESTClients(),
 		te:      tenant,
 	}
 }
 
-// Get takes name of the network, and returns the corresponding network object, and an error if there is any.
-func (c *networks) Get(name string, options metav1.GetOptions) (result *v1.Network, err error) {
-	result = &v1.Network{}
+// Get takes name of the workload, and returns the corresponding workload object, and an error if there is any.
+func (c *workloads) Get(name string, options metav1.GetOptions) (result *v1.Workload, err error) {
+	result = &v1.Workload{}
 	err = c.client.Get().
 		Tenant(c.te).
-		Resource("networks").
+		Resource("workloads").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
 		Do().
@@ -85,13 +84,13 @@ func (c *networks) Get(name string, options metav1.GetOptions) (result *v1.Netwo
 	return
 }
 
-// List takes label and field selectors, and returns the list of Networks that match those selectors.
-func (c *networks) List(opts metav1.ListOptions) (result *v1.NetworkList, err error) {
+// List takes label and field selectors, and returns the list of Workloads that match those selectors.
+func (c *workloads) List(opts metav1.ListOptions) (result *v1.WorkloadList, err error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
 	}
-	result = &v1.NetworkList{}
+	result = &v1.WorkloadList{}
 
 	wgLen := 1
 	// When resource version is not empty, it reads from api server local cache
@@ -105,14 +104,14 @@ func (c *networks) List(opts metav1.ListOptions) (result *v1.NetworkList, err er
 
 		var wg sync.WaitGroup
 		wg.Add(wgLen)
-		results := make(map[int]*v1.NetworkList)
+		results := make(map[int]*v1.WorkloadList)
 		errs := make(map[int]error)
 		for i, client := range c.clients {
-			go func(c *networks, ci rest.Interface, opts metav1.ListOptions, lock *sync.Mutex, pos int, resultMap map[int]*v1.NetworkList, errMap map[int]error) {
-				r := &v1.NetworkList{}
+			go func(c *workloads, ci rest.Interface, opts metav1.ListOptions, lock *sync.Mutex, pos int, resultMap map[int]*v1.WorkloadList, errMap map[int]error) {
+				r := &v1.WorkloadList{}
 				err := ci.Get().
 					Tenant(c.te).
-					Resource("networks").
+					Resource("workloads").
 					VersionedParams(&opts, scheme.ParameterCodec).
 					Timeout(timeout).
 					Do().
@@ -128,7 +127,7 @@ func (c *networks) List(opts metav1.ListOptions) (result *v1.NetworkList, err er
 		wg.Wait()
 
 		// consolidate list result
-		itemsMap := make(map[string]v1.Network)
+		itemsMap := make(map[string]v1.Workload)
 		for j := 0; j < wgLen; j++ {
 			currentErr, isOK := errs[j]
 			if isOK && currentErr != nil {
@@ -174,7 +173,7 @@ func (c *networks) List(opts metav1.ListOptions) (result *v1.NetworkList, err er
 	// system load.
 	err = c.client.Get().
 		Tenant(c.te).
-		Resource("networks").
+		Resource("workloads").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
 		Do().
@@ -195,7 +194,7 @@ func (c *networks) List(opts metav1.ListOptions) (result *v1.NetworkList, err er
 
 		err = client.Get().
 			Tenant(c.te).
-			Resource("networks").
+			Resource("workloads").
 			VersionedParams(&opts, scheme.ParameterCodec).
 			Timeout(timeout).
 			Do().
@@ -216,8 +215,8 @@ func (c *networks) List(opts metav1.ListOptions) (result *v1.NetworkList, err er
 	return
 }
 
-// Watch returns a watch.Interface that watches the requested networks.
-func (c *networks) Watch(opts metav1.ListOptions) (watch.Interface, error) {
+// Watch returns a watch.Interface that watches the requested workloads.
+func (c *workloads) Watch(opts metav1.ListOptions) (watch.Interface, error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
@@ -227,7 +226,7 @@ func (c *networks) Watch(opts metav1.ListOptions) (watch.Interface, error) {
 	for _, client := range c.clients {
 		watcher, err := client.Get().
 			Tenant(c.te).
-			Resource("networks").
+			Resource("workloads").
 			VersionedParams(&opts, scheme.ParameterCodec).
 			Timeout(timeout).
 			Watch()
@@ -241,42 +240,19 @@ func (c *networks) Watch(opts metav1.ListOptions) (watch.Interface, error) {
 	return aggWatch, aggWatch.GetErrors()
 }
 
-// Create takes the representation of a network and creates it.  Returns the server's representation of the network, and an error, if there is any.
-func (c *networks) Create(network *v1.Network) (result *v1.Network, err error) {
-	result = &v1.Network{}
+// Create takes the representation of a workload and creates it.  Returns the server's representation of the workload, and an error, if there is any.
+func (c *workloads) Create(workload *v1.Workload) (result *v1.Workload, err error) {
+	result = &v1.Workload{}
 
-	objectTenant := network.ObjectMeta.Tenant
+	objectTenant := workload.ObjectMeta.Tenant
 	if objectTenant == "" {
 		objectTenant = c.te
 	}
 
 	err = c.client.Post().
 		Tenant(objectTenant).
-		Resource("networks").
-		Body(network).
-		Do().
-		Into(result)
-
-	return
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-
-func (c *networks) UpdateStatus(network *v1.Network) (result *v1.Network, err error) {
-	result = &v1.Network{}
-
-	objectTenant := network.ObjectMeta.Tenant
-	if objectTenant == "" {
-		objectTenant = c.te
-	}
-
-	err = c.client.Put().
-		Tenant(objectTenant).
-		Resource("networks").
-		Name(network.Name).
-		SubResource("status").
-		Body(network).
+		Resource("workloads").
+		Body(workload).
 		Do().
 		Into(result)
 

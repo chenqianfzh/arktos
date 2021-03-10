@@ -27,6 +27,7 @@ import (
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	versioned "k8s.io/arktos-ext/pkg/generated/clientset/versioned"
+	arktosedgeextensions "k8s.io/arktos-ext/pkg/generated/informers/externalversions/arktosedgeextensions"
 	arktosextensions "k8s.io/arktos-ext/pkg/generated/informers/externalversions/arktosextensions"
 	internalinterfaces "k8s.io/arktos-ext/pkg/generated/informers/externalversions/internalinterfaces"
 	cache "k8s.io/client-go/tools/cache"
@@ -183,7 +184,12 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
+	Arktosedge() arktosedgeextensions.Interface
 	Arktos() arktosextensions.Interface
+}
+
+func (f *sharedInformerFactory) Arktosedge() arktosedgeextensions.Interface {
+	return arktosedgeextensions.NewWithMultiTenancy(f, f.namespace, f.tweakListOptions, f.tenant)
 }
 
 func (f *sharedInformerFactory) Arktos() arktosextensions.Interface {

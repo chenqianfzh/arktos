@@ -1,4 +1,4 @@
-apiVersion: arktosedge.futurewei.com/v1alpha1
+apiVersion: arktosedge.futurewei.com/v1
 kind: Workload
 metadata:
   name: example-deployment

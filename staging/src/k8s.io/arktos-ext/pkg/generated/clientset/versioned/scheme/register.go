@@ -24,6 +24,7 @@ import (
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	arktosedgev1 "k8s.io/arktos-ext/pkg/apis/arktosedgeextensions/v1"
 	arktosv1 "k8s.io/arktos-ext/pkg/apis/arktosextensions/v1"
 )
 
@@ -31,6 +32,7 @@ var Scheme = runtime.NewScheme()
 var Codecs = serializer.NewCodecFactory(Scheme)
 var ParameterCodec = runtime.NewParameterCodec(Scheme)
 var localSchemeBuilder = runtime.SchemeBuilder{
+	arktosedgev1.AddToScheme,
 	arktosv1.AddToScheme,
 }
 

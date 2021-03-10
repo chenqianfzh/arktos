@@ -22,6 +22,7 @@ import (
 	"fmt"
 
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	arktosedgeextensionsv1 "k8s.io/arktos-ext/pkg/apis/arktosedgeextensions/v1"
 	v1 "k8s.io/arktos-ext/pkg/apis/arktosextensions/v1"
 	cache "k8s.io/client-go/tools/cache"
 )
@@ -55,6 +56,10 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	// Group=arktos.futurewei.com, Version=v1
 	case v1.SchemeGroupVersion.WithResource("networks"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Arktos().V1().Networks().Informer()}, nil
+
+		// Group=arktosedge.futurewei.com, Version=v1
+	case arktosedgeextensionsv1.SchemeGroupVersion.WithResource("workloads"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Arktosedge().V1().Workloads().Informer()}, nil
 
 	}
 

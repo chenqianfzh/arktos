@@ -13,8 +13,10 @@ go_library(
         "//staging/src/k8s.io/apimachinery/pkg/apis/meta/v1:go_default_library",
         "//staging/src/k8s.io/apimachinery/pkg/runtime:go_default_library",
         "//staging/src/k8s.io/apimachinery/pkg/runtime/schema:go_default_library",
+        "//staging/src/k8s.io/arktos-ext/pkg/apis/arktosedgeextensions/v1:go_default_library",
         "//staging/src/k8s.io/arktos-ext/pkg/apis/arktosextensions/v1:go_default_library",
         "//staging/src/k8s.io/arktos-ext/pkg/generated/clientset/versioned:go_default_library",
+        "//staging/src/k8s.io/arktos-ext/pkg/generated/informers/externalversions/arktosedgeextensions:go_default_library",
         "//staging/src/k8s.io/arktos-ext/pkg/generated/informers/externalversions/arktosextensions:go_default_library",
         "//staging/src/k8s.io/arktos-ext/pkg/generated/informers/externalversions/internalinterfaces:go_default_library",
         "//staging/src/k8s.io/client-go/tools/cache:go_default_library",
@@ -32,6 +34,7 @@ filegroup(
     name = "all-srcs",
     srcs = [
         ":package-srcs",
+        "//staging/src/k8s.io/arktos-ext/pkg/generated/informers/externalversions/arktosedgeextensions:all-srcs",
         "//staging/src/k8s.io/arktos-ext/pkg/generated/informers/externalversions/arktosextensions:all-srcs",
         "//staging/src/k8s.io/arktos-ext/pkg/generated/informers/externalversions/internalinterfaces:all-srcs",
     ],

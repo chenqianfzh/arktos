@@ -6,7 +6,7 @@ metadata:
     arktos.futurewei.com/crd-sharing-policy: forced
 spec:
   group: arktosedge.futurewei.com
-  version: v1alpha1
+  version: v1
   names:
     kind: Workload
     plural: workloads
