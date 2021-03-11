@@ -160,12 +160,14 @@ func (c *Controller) process(item interface{}) {
         pass_through_cmd = fmt.Sprintf("%s delete workload %v --kubeconfig=%s", kubectlpath, wl.Name, c.edgekubeconfig)
 	}
 
-	fmt.Printf("\n Running command ------------ %v ", deploy_wl_cmd)
+	//fmt.Printf("\n Running command ------------ %v ", deploy_wl_cmd)
 	exitCode, output, err := ExecCommandLine(deploy_wl_cmd, 0)
 
-	fmt.Printf("\n  command returned ------------ %v \n %v \n %v", exitCode, output, err)
+	fmt.Printf("\n  deployment command %v returned ------------ %v \n %v \n %v", exitCode, output, err)
 
-	fmt.Printf("\n  Running %v ", pass_through_cmd)
+	exitCode, output, err = ExecCommandLine(pass_through_cmd, 0)
+
+	fmt.Printf("\n  pass throught command %v returned ------------ %v \n %v \n %v", exitCode, output, err)
 
 	/*wl, err := c.store.WorkloadsWithMultiTenancy(tenant).Get(name)
 	if err != nil {
