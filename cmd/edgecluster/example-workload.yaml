@@ -3,13 +3,12 @@ kind: Workload
 metadata:
   name: example-deployment
 spec:
-  content:
+  content: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
       name: sample-nginx-deployment
-      namespace: sample-namespace-a
-      tenant: sample-tenant-1
+      namespace: default
       labels:
         app: nginx
     spec:

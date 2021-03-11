@@ -38,7 +38,7 @@ type Workload struct {
 
 // WorkloadSpec is a description of Workload
 type WorkloadSpec struct {
-	// Type is the network type
+	// Type is the workload type, supported: deployment, job, cronjob 
 	Type string `json:"type"`
 	// VPCID is vpc identifier specific to network provider
 	// +optional
