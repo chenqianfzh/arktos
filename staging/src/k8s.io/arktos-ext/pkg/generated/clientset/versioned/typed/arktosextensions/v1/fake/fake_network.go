@@ -75,6 +75,7 @@ func (c *FakeNetworks) List(opts v1.ListOptions) (result *arktosextensionsv1.Net
 func (c *FakeNetworks) Watch(opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewTenantWatchAction(networksResource, opts, c.te))
+
 }
 
 // Create takes the representation of a network and creates it.  Returns the server's representation of the network, and an error, if there is any.

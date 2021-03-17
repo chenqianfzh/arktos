@@ -19,6 +19,7 @@ limitations under the License.
 package versioned
 
 import (
+	arktosedgev1 "k8s.io/arktos-ext/pkg/generated/clientset/versioned/typed/arktosedgeextensions/v1"
 	arktosv1 "k8s.io/arktos-ext/pkg/generated/clientset/versioned/typed/arktosextensions/v1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
@@ -27,6 +28,7 @@ import (
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
+	ArktosedgeV1() arktosedgev1.ArktosedgeV1Interface
 	ArktosV1() arktosv1.ArktosV1Interface
 }
 
@@ -34,7 +36,13 @@ type Interface interface {
 // version included in a Clientset.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	arktosV1 *arktosv1.ArktosV1Client
+	arktosedgeV1 *arktosedgev1.ArktosedgeV1Client
+	arktosV1     *arktosv1.ArktosV1Client
+}
+
+// ArktosedgeV1 retrieves the ArktosedgeV1Client
+func (c *Clientset) ArktosedgeV1() arktosedgev1.ArktosedgeV1Interface {
+	return c.arktosedgeV1
 }
 
 // ArktosV1 retrieves the ArktosV1Client
@@ -52,20 +60,27 @@ func (c *Clientset) Discovery() discovery.DiscoveryInterface {
 
 // NewForConfig creates a new Clientset for the given config.
 func NewForConfig(c *rest.Config) (*Clientset, error) {
-	configShallowCopy := *c
-	for _, configCopy := range configShallowCopy.GetAllConfigs() {
+	configShallowCopy := rest.NewAggregatedConfig()
+
+	for _, currentConfig := range c.GetAllConfigs() {
+		configCopy := *currentConfig
 		if configCopy.RateLimiter == nil && configCopy.QPS > 0 {
 			configCopy.RateLimiter = flowcontrol.NewTokenBucketRateLimiter(configCopy.QPS, configCopy.Burst)
 		}
+		configShallowCopy.AddConfig(&configCopy)
 	}
 	var cs Clientset
 	var err error
-	cs.arktosV1, err = arktosv1.NewForConfig(&configShallowCopy)
+	cs.arktosedgeV1, err = arktosedgev1.NewForConfig(configShallowCopy)
+	if err != nil {
+		return nil, err
+	}
+	cs.arktosV1, err = arktosv1.NewForConfig(configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
 
-	cs.DiscoveryClient, err = discovery.NewDiscoveryClientForConfig(&configShallowCopy)
+	cs.DiscoveryClient, err = discovery.NewDiscoveryClientForConfig(configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
@@ -76,6 +91,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 // panics if there is an error in the config.
 func NewForConfigOrDie(c *rest.Config) *Clientset {
 	var cs Clientset
+	cs.arktosedgeV1 = arktosedgev1.NewForConfigOrDie(c)
 	cs.arktosV1 = arktosv1.NewForConfigOrDie(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClientForConfigOrDie(c)
@@ -85,6 +101,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
+	cs.arktosedgeV1 = arktosedgev1.New(c)
 	cs.arktosV1 = arktosv1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)

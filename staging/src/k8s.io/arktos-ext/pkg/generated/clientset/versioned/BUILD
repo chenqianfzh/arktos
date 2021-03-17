@@ -10,6 +10,7 @@ go_library(
     importpath = "k8s.io/arktos-ext/pkg/generated/clientset/versioned",
     visibility = ["//visibility:public"],
     deps = [
+        "//staging/src/k8s.io/arktos-ext/pkg/generated/clientset/versioned/typed/arktosedgeextensions/v1:go_default_library",
         "//staging/src/k8s.io/arktos-ext/pkg/generated/clientset/versioned/typed/arktosextensions/v1:go_default_library",
         "//staging/src/k8s.io/client-go/discovery:go_default_library",
         "//staging/src/k8s.io/client-go/rest:go_default_library",
@@ -30,6 +31,7 @@ filegroup(
         ":package-srcs",
         "//staging/src/k8s.io/arktos-ext/pkg/generated/clientset/versioned/fake:all-srcs",
         "//staging/src/k8s.io/arktos-ext/pkg/generated/clientset/versioned/scheme:all-srcs",
+        "//staging/src/k8s.io/arktos-ext/pkg/generated/clientset/versioned/typed/arktosedgeextensions/v1:all-srcs",
         "//staging/src/k8s.io/arktos-ext/pkg/generated/clientset/versioned/typed/arktosextensions/v1:all-srcs",
     ],
     tags = ["automanaged"],

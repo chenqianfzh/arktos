@@ -28,55 +28,54 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	diff "k8s.io/apimachinery/pkg/util/diff"
 	watch "k8s.io/apimachinery/pkg/watch"
-	v1 "k8s.io/arktos-ext/pkg/apis/arktosextensions/v1"
+	v1 "k8s.io/arktos-ext/pkg/apis/arktosedgeextensions/v1"
 	scheme "k8s.io/arktos-ext/pkg/generated/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 	klog "k8s.io/klog"
 )
 
-// NetworksGetter has a method to return a NetworkInterface.
+// MissionsGetter has a method to return a MissionInterface.
 // A group's client should implement this interface.
-type NetworksGetter interface {
-	Networks() NetworkInterface
-	NetworksWithMultiTenancy(tenant string) NetworkInterface
+type MissionsGetter interface {
+	Missions() MissionInterface
+	MissionsWithMultiTenancy(tenant string) MissionInterface
 }
 
-// NetworkInterface has methods to work with Network resources.
-type NetworkInterface interface {
-	Create(*v1.Network) (*v1.Network, error)
-	UpdateStatus(*v1.Network) (*v1.Network, error)
-	Get(name string, options metav1.GetOptions) (*v1.Network, error)
-	List(opts metav1.ListOptions) (*v1.NetworkList, error)
+// MissionInterface has methods to work with Mission resources.
+type MissionInterface interface {
+	Create(*v1.Mission) (*v1.Mission, error)
+	Get(name string, options metav1.GetOptions) (*v1.Mission, error)
+	List(opts metav1.ListOptions) (*v1.MissionList, error)
 	Watch(opts metav1.ListOptions) (watch.Interface, error)
-	NetworkExpansion
+	MissionExpansion
 }
 
-// networks implements NetworkInterface
-type networks struct {
+// missions implements MissionInterface
+type missions struct {
 	client  rest.Interface
 	clients []rest.Interface
 	te      string
 }
 
-// newNetworks returns a Networks
-func newNetworks(c *ArktosV1Client) *networks {
-	return newNetworksWithMultiTenancy(c, "system")
+// newMissions returns a Missions
+func newMissions(c *ArktosedgeV1Client) *missions {
+	return newMissionsWithMultiTenancy(c, "system")
 }
 
-func newNetworksWithMultiTenancy(c *ArktosV1Client, tenant string) *networks {
-	return &networks{
+func newMissionsWithMultiTenancy(c *ArktosedgeV1Client, tenant string) *missions {
+	return &missions{
 		client:  c.RESTClient(),
 		clients: c.RESTClients(),
 		te:      tenant,
 	}
 }
 
-// Get takes name of the network, and returns the corresponding network object, and an error if there is any.
-func (c *networks) Get(name string, options metav1.GetOptions) (result *v1.Network, err error) {
-	result = &v1.Network{}
+// Get takes name of the mission, and returns the corresponding mission object, and an error if there is any.
+func (c *missions) Get(name string, options metav1.GetOptions) (result *v1.Mission, err error) {
+	result = &v1.Mission{}
 	err = c.client.Get().
 		Tenant(c.te).
-		Resource("networks").
+		Resource("missions").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
 		Do().
@@ -85,13 +84,13 @@ func (c *networks) Get(name string, options metav1.GetOptions) (result *v1.Netwo
 	return
 }
 
-// List takes label and field selectors, and returns the list of Networks that match those selectors.
-func (c *networks) List(opts metav1.ListOptions) (result *v1.NetworkList, err error) {
+// List takes label and field selectors, and returns the list of Missions that match those selectors.
+func (c *missions) List(opts metav1.ListOptions) (result *v1.MissionList, err error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
 	}
-	result = &v1.NetworkList{}
+	result = &v1.MissionList{}
 
 	wgLen := 1
 	// When resource version is not empty, it reads from api server local cache
@@ -105,14 +104,14 @@ func (c *networks) List(opts metav1.ListOptions) (result *v1.NetworkList, err er
 
 		var wg sync.WaitGroup
 		wg.Add(wgLen)
-		results := make(map[int]*v1.NetworkList)
+		results := make(map[int]*v1.MissionList)
 		errs := make(map[int]error)
 		for i, client := range c.clients {
-			go func(c *networks, ci rest.Interface, opts metav1.ListOptions, lock *sync.Mutex, pos int, resultMap map[int]*v1.NetworkList, errMap map[int]error) {
-				r := &v1.NetworkList{}
+			go func(c *missions, ci rest.Interface, opts metav1.ListOptions, lock *sync.Mutex, pos int, resultMap map[int]*v1.MissionList, errMap map[int]error) {
+				r := &v1.MissionList{}
 				err := ci.Get().
 					Tenant(c.te).
-					Resource("networks").
+					Resource("missions").
 					VersionedParams(&opts, scheme.ParameterCodec).
 					Timeout(timeout).
 					Do().
@@ -128,7 +127,7 @@ func (c *networks) List(opts metav1.ListOptions) (result *v1.NetworkList, err er
 		wg.Wait()
 
 		// consolidate list result
-		itemsMap := make(map[string]v1.Network)
+		itemsMap := make(map[string]v1.Mission)
 		for j := 0; j < wgLen; j++ {
 			currentErr, isOK := errs[j]
 			if isOK && currentErr != nil {
@@ -174,7 +173,7 @@ func (c *networks) List(opts metav1.ListOptions) (result *v1.NetworkList, err er
 	// system load.
 	err = c.client.Get().
 		Tenant(c.te).
-		Resource("networks").
+		Resource("missions").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
 		Do().
@@ -195,7 +194,7 @@ func (c *networks) List(opts metav1.ListOptions) (result *v1.NetworkList, err er
 
 		err = client.Get().
 			Tenant(c.te).
-			Resource("networks").
+			Resource("missions").
 			VersionedParams(&opts, scheme.ParameterCodec).
 			Timeout(timeout).
 			Do().
@@ -216,8 +215,8 @@ func (c *networks) List(opts metav1.ListOptions) (result *v1.NetworkList, err er
 	return
 }
 
-// Watch returns a watch.Interface that watches the requested networks.
-func (c *networks) Watch(opts metav1.ListOptions) (watch.Interface, error) {
+// Watch returns a watch.Interface that watches the requested missions.
+func (c *missions) Watch(opts metav1.ListOptions) (watch.Interface, error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
@@ -227,7 +226,7 @@ func (c *networks) Watch(opts metav1.ListOptions) (watch.Interface, error) {
 	for _, client := range c.clients {
 		watcher, err := client.Get().
 			Tenant(c.te).
-			Resource("networks").
+			Resource("missions").
 			VersionedParams(&opts, scheme.ParameterCodec).
 			Timeout(timeout).
 			Watch()
@@ -241,42 +240,19 @@ func (c *networks) Watch(opts metav1.ListOptions) (watch.Interface, error) {
 	return aggWatch, aggWatch.GetErrors()
 }
 
-// Create takes the representation of a network and creates it.  Returns the server's representation of the network, and an error, if there is any.
-func (c *networks) Create(network *v1.Network) (result *v1.Network, err error) {
-	result = &v1.Network{}
+// Create takes the representation of a mission and creates it.  Returns the server's representation of the mission, and an error, if there is any.
+func (c *missions) Create(mission *v1.Mission) (result *v1.Mission, err error) {
+	result = &v1.Mission{}
 
-	objectTenant := network.ObjectMeta.Tenant
+	objectTenant := mission.ObjectMeta.Tenant
 	if objectTenant == "" {
 		objectTenant = c.te
 	}
 
 	err = c.client.Post().
 		Tenant(objectTenant).
-		Resource("networks").
-		Body(network).
-		Do().
-		Into(result)
-
-	return
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-
-func (c *networks) UpdateStatus(network *v1.Network) (result *v1.Network, err error) {
-	result = &v1.Network{}
-
-	objectTenant := network.ObjectMeta.Tenant
-	if objectTenant == "" {
-		objectTenant = c.te
-	}
-
-	err = c.client.Put().
-		Tenant(objectTenant).
-		Resource("networks").
-		Name(network.Name).
-		SubResource("status").
-		Body(network).
+		Resource("missions").
+		Body(mission).
 		Do().
 		Into(result)
 

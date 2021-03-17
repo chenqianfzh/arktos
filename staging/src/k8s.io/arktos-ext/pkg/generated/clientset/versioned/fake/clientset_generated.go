@@ -22,6 +22,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	clientset "k8s.io/arktos-ext/pkg/generated/clientset/versioned"
+	arktosedgev1 "k8s.io/arktos-ext/pkg/generated/clientset/versioned/typed/arktosedgeextensions/v1"
+	fakearktosedgev1 "k8s.io/arktos-ext/pkg/generated/clientset/versioned/typed/arktosedgeextensions/v1/fake"
 	arktosv1 "k8s.io/arktos-ext/pkg/generated/clientset/versioned/typed/arktosextensions/v1"
 	fakearktosv1 "k8s.io/arktos-ext/pkg/generated/clientset/versioned/typed/arktosextensions/v1/fake"
 	"k8s.io/client-go/discovery"
@@ -76,6 +78,11 @@ func (c *Clientset) Tracker() testing.ObjectTracker {
 }
 
 var _ clientset.Interface = &Clientset{}
+
+// ArktosedgeV1 retrieves the ArktosedgeV1Client
+func (c *Clientset) ArktosedgeV1() arktosedgev1.ArktosedgeV1Interface {
+	return &fakearktosedgev1.FakeArktosedgeV1{Fake: &c.Fake}
+}
 
 // ArktosV1 retrieves the ArktosV1Client
 func (c *Clientset) ArktosV1() arktosv1.ArktosV1Interface {

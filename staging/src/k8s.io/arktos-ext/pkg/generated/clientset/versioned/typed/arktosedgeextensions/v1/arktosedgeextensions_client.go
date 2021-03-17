@@ -23,36 +23,36 @@ import (
 	"sync"
 	"time"
 
-	v1 "k8s.io/arktos-ext/pkg/apis/arktosextensions/v1"
+	v1 "k8s.io/arktos-ext/pkg/apis/arktosedgeextensions/v1"
 	"k8s.io/arktos-ext/pkg/generated/clientset/versioned/scheme"
 	apiserverupdate "k8s.io/client-go/apiserverupdate"
 	rest "k8s.io/client-go/rest"
 	klog "k8s.io/klog"
 )
 
-type ArktosV1Interface interface {
+type ArktosedgeV1Interface interface {
 	RESTClient() rest.Interface
 	RESTClients() []rest.Interface
-	NetworksGetter
+	MissionsGetter
 }
 
-// ArktosV1Client is used to interact with features provided by the arktos.futurewei.com group.
-type ArktosV1Client struct {
+// ArktosedgeV1Client is used to interact with features provided by the arktosedge.futurewei.com group.
+type ArktosedgeV1Client struct {
 	restClients []rest.Interface
 	configs     *rest.Config
 	mux         sync.RWMutex
 }
 
-func (c *ArktosV1Client) Networks() NetworkInterface {
-	return newNetworksWithMultiTenancy(c, "system")
+func (c *ArktosedgeV1Client) Missions() MissionInterface {
+	return newMissionsWithMultiTenancy(c, "system")
 }
 
-func (c *ArktosV1Client) NetworksWithMultiTenancy(tenant string) NetworkInterface {
-	return newNetworksWithMultiTenancy(c, tenant)
+func (c *ArktosedgeV1Client) MissionsWithMultiTenancy(tenant string) MissionInterface {
+	return newMissionsWithMultiTenancy(c, tenant)
 }
 
-// NewForConfig creates a new ArktosV1Client for the given config.
-func NewForConfig(c *rest.Config) (*ArktosV1Client, error) {
+// NewForConfig creates a new ArktosedgeV1Client for the given config.
+func NewForConfig(c *rest.Config) (*ArktosedgeV1Client, error) {
 	configs := rest.CopyConfigs(c)
 	if err := setConfigDefaults(configs); err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func NewForConfig(c *rest.Config) (*ArktosV1Client, error) {
 		clients[i] = client
 	}
 
-	obj := &ArktosV1Client{
+	obj := &ArktosedgeV1Client{
 		restClients: clients,
 		configs:     configs,
 	}
@@ -77,9 +77,9 @@ func NewForConfig(c *rest.Config) (*ArktosV1Client, error) {
 	return obj, nil
 }
 
-// NewForConfigOrDie creates a new ArktosV1Client for the given config and
+// NewForConfigOrDie creates a new ArktosedgeV1Client for the given config and
 // panics if there is an error in the config.
-func NewForConfigOrDie(c *rest.Config) *ArktosV1Client {
+func NewForConfigOrDie(c *rest.Config) *ArktosedgeV1Client {
 	client, err := NewForConfig(c)
 	if err != nil {
 		panic(err)
@@ -87,10 +87,10 @@ func NewForConfigOrDie(c *rest.Config) *ArktosV1Client {
 	return client
 }
 
-// New creates a new ArktosV1Client for the given RESTClient.
-func New(c rest.Interface) *ArktosV1Client {
+// New creates a new ArktosedgeV1Client for the given RESTClient.
+func New(c rest.Interface) *ArktosedgeV1Client {
 	clients := []rest.Interface{c}
-	return &ArktosV1Client{restClients: clients}
+	return &ArktosedgeV1Client{restClients: clients}
 }
 
 func setConfigDefaults(configs *rest.Config) error {
@@ -111,7 +111,7 @@ func setConfigDefaults(configs *rest.Config) error {
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *ArktosV1Client) RESTClient() rest.Interface {
+func (c *ArktosedgeV1Client) RESTClient() rest.Interface {
 	if c == nil {
 		return nil
 	}
@@ -133,7 +133,7 @@ func (c *ArktosV1Client) RESTClient() rest.Interface {
 
 // RESTClients returns all RESTClient that are used to communicate
 // with all API servers by this client implementation.
-func (c *ArktosV1Client) RESTClients() []rest.Interface {
+func (c *ArktosedgeV1Client) RESTClients() []rest.Interface {
 	if c == nil {
 		return nil
 	}
@@ -141,8 +141,8 @@ func (c *ArktosV1Client) RESTClients() []rest.Interface {
 }
 
 // run watch api server instance updates and recreate connections to new set of api servers
-func (c *ArktosV1Client) run() {
-	go func(c *ArktosV1Client) {
+func (c *ArktosedgeV1Client) run() {
+	go func(c *ArktosedgeV1Client) {
 		member := c.configs.WatchUpdate()
 		watcherForUpdateComplete := apiserverupdate.GetClientSetsWatcher()
 		watcherForUpdateComplete.AddWatcher()
