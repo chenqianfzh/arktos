@@ -216,7 +216,6 @@ func (c *Controller) Delete(obj interface{}) {
 }
 
 func ExecCommandLine(commandline string, timeout int) bool {
-	fmt.Printf("\n Running ____________ %v\n ", commandline)
 	klog.V(3).Infof("Running Command (%v)", commandline)
 	var cmd *exec.Cmd
 	if timeout > 0 {
@@ -272,7 +271,6 @@ func getClusterLabels() map[string]string {
 }
 
 func matchMission(mission *v1.Mission) bool {
-	fmt.Printf("\n Match (%v) (%v)", mission.Spec.Placement.Clusters, mission.Spec.Placement.ClusterSelector)
 	if len(mission.Spec.Placement.Clusters) == 0 && len(mission.Spec.Placement.ClusterSelector.MatchLabels) == 0 && len(mission.Spec.Placement.ClusterSelector.MatchExpressions) == 0 {
 		return true
 	}
@@ -286,6 +284,11 @@ func matchMission(mission *v1.Mission) bool {
 		}
 	}
 
+	if len(mission.Spec.Placement.ClusterSelector.MatchLabels) == 0 && len(mission.Spec.Placement.ClusterSelector.MatchExpressions) == 0 {
+		return false
+	}
+
 	selector, _ := metav1.LabelSelectorAsSelector(&(mission.Spec.Placement.ClusterSelector))
-	return selector.Matches(labels.Set(getClusterLabels()))
+	result := selector.Matches(labels.Set(getClusterLabels()))
+	return result
 }
