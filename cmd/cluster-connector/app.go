@@ -126,7 +126,7 @@ func (c *Connector) startMissionWatcher() {
 					return
 				}
 				if event.Op&fsnotify.Write == fsnotify.Write {
-					klog.Infof("Modifed %#v", event)
+					klog.V(5).Infof("Modifed %#v", event)
 
 					newMission, err := c.captureChangedMission()
 					if err != nil {
@@ -139,8 +139,10 @@ func (c *Connector) startMissionWatcher() {
 					}
 
 					if c.missionExists(newMission.Name) {
+						klog.Infof("Applying new mission %v", newMission.Name)
 						c.applyMission(newMission)
 					} else {
+						klog.Infof("Deleting mission %v", newMission.Name)
 						c.deleteMission(newMission)
 					}
 				} else {
@@ -202,6 +204,7 @@ func (c *Connector) applyMission(mission *Mission) {
 	}
 
 	if matchMission(mission) {
+		klog.Infof("Mission matched, applying the content of mission %v", mission.Name)
 		deploy_mission_cmd := fmt.Sprintf("printf \"%s\" | %s apply %s -f - ", mission.Spec.Content, c.lowerCluster.kubectl, c.lowerCluster.kubeconfig)
 		ExecCommandLine(deploy_mission_cmd, COMMAND_TIMEOUT_SEC)
 	}
@@ -214,6 +217,7 @@ func (c *Connector) deleteMission(mission *Mission) {
 	}
 
 	if matchMission(mission) {
+		klog.Infof("Mission matched, deleting the content of mission %v", mission.Name)
 		deploy_mission_cmd := fmt.Sprintf("printf \"%s\" | %s delete %s -f - ", mission.Spec.Content, c.lowerCluster.kubectl, c.lowerCluster.kubeconfig)
 		ExecCommandLine(deploy_mission_cmd, COMMAND_TIMEOUT_SEC)
 	}
