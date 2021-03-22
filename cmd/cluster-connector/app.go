@@ -114,13 +114,16 @@ func (c *Connector) Run(workers int, stopCh <-chan struct{}) {
 }
 
 func (c *Connector) startMissionWatcher() {
-	if c.upperCluster.clusterType == ArktosCluster {
+	/*if c.upperCluster.clusterType == ArktosCluster {
 		watch_mission_command := fmt.Sprintf("%s get mission --watch-only --output json %s 2>&1 | tee %s", c.upperCluster.kubectl, c.upperCluster.kubeconfig, c.missionLog)
 		go ExecCommandLine(watch_mission_command, 0)
 	} else {
 		watch_mission_command := fmt.Sprintf("%s get mission --watch-only --output json %s 2>&1 | tee %s &", c.upperCluster.kubectl, c.upperCluster.kubeconfig, c.missionLog)
 		ExecCommandLine(watch_mission_command, 0)
-	}
+	}*/
+
+	watch_mission_command := fmt.Sprintf("%s get mission --watch-only --output json %s 2>&1 | tee %s", c.upperCluster.kubectl, c.upperCluster.kubeconfig, c.missionLog)
+	go ExecCommandLine(watch_mission_command, 0)
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
