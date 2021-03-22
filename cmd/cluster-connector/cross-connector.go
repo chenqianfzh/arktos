@@ -105,7 +105,7 @@ func parseClusterConfig(input string) (*ClusterConfig, error) {
 		return &ClusterConfig{
 			clusterType: K8sCluster,
 			kubeconfig:  fmt.Sprintf("--kubeconfig=%s", kubeconfigFile),
-			kubectl:     filepath.Join(basedir, "kuberetes/kubectl"),
+			kubectl:     filepath.Join(basedir, "kubernetes/kubectl"),
 		}, nil
 
 	case "k3s":

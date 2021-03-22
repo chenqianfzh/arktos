@@ -49,6 +49,7 @@ const (
 	COMMAND_TIMEOUT_SEC = 10
 
 	CRD_FILE = "data/crd.yaml"
+	ARKTOS_CRD_FILE = "data/crd_arktos.yaml"
 
 	MISSION_WATCH_LOG = "mission_watch.log"
 )
@@ -57,14 +58,19 @@ func New(
 	upperCluster *ClusterConfig,
 	lowerCluster *ClusterConfig,
 ) *Connector {
-	basedir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-	crdPath := filepath.Join(basedir, CRD_FILE)
+	var crdPath string
+	basedir, _ := filepath.Abs(filepath.Dir(os.Args[0]))	
+	if upperCluster.clusterType == ArktosCluster {
+		crdPath = filepath.Join(basedir, ARKTOS_CRD_FILE)
+	} else {
+		crdPath = filepath.Join(basedir, CRD_FILE)
+	}
 
 	if equalClusterConfig(upperCluster, lowerCluster) == false {
 		check_master_cmd := fmt.Sprintf("%s get mission %s", upperCluster.kubectl, upperCluster.kubeconfig)
 		if exitCode, _, err := ExecCommandLine(check_master_cmd, COMMAND_TIMEOUT_SEC); exitCode != 0 || err != nil {
 			klog.Fatalf("Master cluster does not have the CRD installed!")
-		}
+		} 
 	}
 
 	crd_apply_cmd := fmt.Sprintf("%s apply -f %s %s", lowerCluster.kubectl, crdPath, lowerCluster.kubeconfig)
@@ -137,6 +143,10 @@ func (c *Connector) startMissionWatcher() {
 					newMission, err := c.captureChangedMission()
 					if err != nil {
 						klog.Errorf("Error in reading mission log : %v", err)
+						continue
+					}
+
+					if newMission == nil {
 						continue
 					}
 
@@ -302,7 +312,7 @@ func (c *Connector) captureChangedMission() (*Mission, error) {
 
 	line_diff := line_count - c.missionLogPos
 	if line_diff <= 0 {
-		return nil, fmt.Errorf("empty mission.")
+		return nil, nil
 	}
 	c.missionLogPos = line_count
 

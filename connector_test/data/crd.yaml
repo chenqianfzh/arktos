@@ -10,4 +10,4 @@ spec:
   names:
     kind: Mission
     plural: missions
-  scope: Tenant
+  scope: Cluster
