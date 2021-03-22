@@ -55,7 +55,7 @@ func New(
 ) *Connector {
 	var crdPath string
 	basedir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-	if upperCluster.clusterType == ArktosCluster {
+	if lowerCluster.clusterType == ArktosCluster {
 		crdPath = filepath.Join(basedir, ARKTOS_CRD_FILE)
 	} else {
 		crdPath = filepath.Join(basedir, CRD_FILE)
