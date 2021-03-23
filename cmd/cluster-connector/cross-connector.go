@@ -113,5 +113,5 @@ func parseClusterConfig(input string) (*ClusterConfig, error) {
 }
 
 func equalClusterConfig(cc1 *ClusterConfig, cc2 *ClusterConfig) bool {
-	return cc1.clusterType == cc2.clusterType && cc1.kubectl == cc2.kubectl
+	return cc1.clusterType == cc2.clusterType && cc1.kubeconfig == cc2.kubeconfig
 }
