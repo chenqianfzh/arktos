@@ -16,7 +16,7 @@ limitations under the License.
 
 // This controller implementation is based on design doc docs/design-proposals/multi-tenancy/multi-tenancy-network.md
 
-package main
+package connector
 
 import (
 	"flag"

@@ -19,6 +19,7 @@ filegroup(
         "//cmd/gendocs:all-srcs",
         "//cmd/genkubedocs:all-srcs",
         "//cmd/genman:all-srcs",
+        "//cmd/genmission:all-srcs",
         "//cmd/genswaggertypedocs:all-srcs",
         "//cmd/genutils:all-srcs",
         "//cmd/genyaml:all-srcs",
